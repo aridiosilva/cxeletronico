@@ -1,0 +1,33 @@
+package courseraita;
+
+public class PontuacaoUsuarios implements Comparable<PontuacaoUsuarios>  {
+
+	String _usuario;
+	String _tipoPonto;
+	String _pontos;
+
+	public  PontuacaoUsuarios (String usuario, String tipoPonto, int numeroPontos) {
+		
+		System.out.println("-> " + usuario + " , " + tipoPonto  + " , " +  numeroPontos);
+		
+		this._usuario   = usuario.toLowerCase();
+		this._tipoPonto = tipoPonto.toLowerCase();
+		this._pontos    = Integer.toString(numeroPontos);
+	}
+
+	public String getUsuario () {		
+		return _usuario;
+	}
+	public String getTipoPonto () {		
+		return _tipoPonto;
+	}
+	public int getPontos () {		
+		return Integer.parseInt(_pontos); 
+	}
+
+	@Override
+	public int compareTo(PontuacaoUsuarios o) {
+		 return this.getUsuario().compareTo(o.getUsuario());
+	}
+
+}

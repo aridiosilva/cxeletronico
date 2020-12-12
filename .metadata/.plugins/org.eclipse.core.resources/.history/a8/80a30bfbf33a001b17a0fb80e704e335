@@ -1,0 +1,233 @@
+
+package courseraita;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+
+public class Armazenamento implements IArmazenamento {
+	
+	File file = new File( "pontuacaoGamificacao.txt" );
+	
+	private static final int  ESVAZIAR_ARQUIVO = 1;
+	
+	private static LinkedList<PontuacaoUsuarios> _pontuacaoUsuarios = new LinkedList<PontuacaoUsuarios>();
+	private static HashSet<String>         _diferentesTiposDePontos = new HashSet<String>();
+
+	private RandomAccessFile arquivoTXT;
+	
+	
+	public Armazenamento (int acao ) throws Exception, IOException  {
+		try {
+	      if (!file.exists()) {	 
+	    	  
+//	    	  file.createNewFile();
+//	          System.out.println("File name :"+file.getName()); 
+//	          System.out.println("Path: "+file.getPath()); 
+//	          System.out.println("Absolute path:" +file.getAbsolutePath()); 
+//	          System.out.println("Parent:"+file.getParent()); 
+//	          System.out.println("Exists :"+file.exists()); 
+	          
+//	      } else {
+	    	  
+//            System.out.println("Is writeable:"+file.canWrite()); 
+//            System.out.println("Is readable"+file.canRead()); 
+//            System.out.println("Is a directory:"+file.isDirectory()); 
+//            System.out.println("File Size in bytes "+file.length()); 
+              
+       	  if (acao == ESVAZIAR_ARQUIVO) {
+	    	        if(file.delete()) 
+	    	            System.out.println("File deleted successfully"); 
+	    	        else
+	    	            System.out.println("Failed to delete the file");
+	    	        
+	          } else  fazLeituraArquivoTextoDePontuacao();
+	      }
+		}
+       catch (IOException ioe) { 
+          throw new Exception ("Problema na Leitura do Arquivo TEXTO");
+        }
+	}
+	
+	@Override
+	public void armazenarPontuacaoDeUmUsuario(PontuacaoUsuarios p) {
+		
+		_pontuacaoUsuarios.add (p);
+		
+		if ( p.getPontos() != 0 && !_diferentesTiposDePontos.contains(p._tipoPonto))	
+		
+			_diferentesTiposDePontos.add (p._tipoPonto);
+		
+		extendeArquivotextoPontuacao (p);
+	}
+
+	@Override
+	public HashSet<String> retornarTiposDePontosJaRegistrados() {		
+//		System.out.println( _diferentesTiposDePontos + "\n");
+		return _diferentesTiposDePontos;
+	}
+
+	@Override
+	public LinkedList<PontuacaoUsuarios> retornarUsuariosComAlgumTipodePonto() throws Exception {
+		if (_pontuacaoUsuarios.isEmpty())
+			throw new Exception ("Error: Arquivo Vazio - Nenhuma Pontuacao de Usuarios");		
+		return _pontuacaoUsuarios;
+	}
+ 
+	@Override
+	public int recuperarTotaisDePontosDeUmTipoDeUmUsuario(String tipoPonto, String usuario) throws Exception {		
+		if (_pontuacaoUsuarios.isEmpty())
+			throw new Exception ("Error: Arquivo Vazio - Nenhuma Pontuacao de Usuarios");
+		
+		int _totalPontos = 0;
+		boolean usuarioNaoEncontrado = true;	
+		
+		for (int i = 0; i < _pontuacaoUsuarios.size(); i++) {
+			
+			if (((String) _pontuacaoUsuarios.get(i).getUsuario()).contains(usuario)) {
+				
+				usuarioNaoEncontrado = false;				
+				if (((String) _pontuacaoUsuarios.get(i).getTipoPonto()).contains(tipoPonto)) 
+					
+					_totalPontos += (int)    _pontuacaoUsuarios.get(i).getPontos();
+			}
+		}
+		if (usuarioNaoEncontrado) {			
+			throw new Exception ("Error: Usuario Nao Encontrado!!! ");
+		}
+		return _totalPontos;
+	}
+	
+//	File file = new File( "pontuacao_gamificacao.txt" );
+	
+//	private static LinkedList<PontuacaoUsuarios> _pontuacaoUsuarios = new LinkedList<PontuacaoUsuarios>();
+//	private static HashSet<String>         _diferentesTiposDePontos = new HashSet<String>();
+	
+	private void fazLeituraArquivoTextoDePontuacao() throws IOException {
+
+		RandomAccessFile arquivoTXT = new RandomAccessFile("pontuacaoGamificacao.txt", "rw"); 
+	
+		// Create array up to arquivoTXT.length 
+		byte[] arr = new byte[(int) arquivoTXT.length()]; 
+
+		
+	}
+
+	public void extendeArquivotextoPontuacao(PontuacaoUsuarios p) throws Exception, IOException {
+        
+		// Layout do registro de Pontuacao do usuario no Arquivo TXT:  (A)(B)(C)9D)(E)(F)
+
+		final int SIZE_FIELD_TOTAL_EM_BYTES = 4;     // A = 4 bytes para variavel int
+		final int SIZE_FIELD_USERNAME       = 4;     // B 
+	    final int SIZE_FIELD_TIPOPONTO_NOME = 4;     // C = contem o numero de pontos em int
+		final int SIZE_FIELD_NUMERO_PONTOS  = 4;     // D = 4 bytes para variavel int
+		final int SIZE_HEADER_REG_PONTUACAO = 16;    
+        
+		// FIELD NOME DO USUARIO VARIAVEL               E = TAMANHO VARIAVEL - o numero de bytes do nome  
+	    // FIELD NOME DO TIPO DO PONTO                  F = TAMANHO VARIAVEL - o numero de bytes do nome 
+		
+		try {
+
+			// abre o arquivo 
+			
+			arquivoTXT = new RandomAccessFile("pontuacaoGamificacao1.txt", "rw"); 
+			
+			// calcula size do registro de pontos do usuario a gravar
+			
+			int sizeNomeUsuario   = p.getUsuario().length(); 
+			int sizeNomeTipoPonto = p.getTipoPonto().length();
+			int size_registro     = SIZE_HEADER_REG_PONTUACAO + sizeNomeUsuario + sizeNomeTipoPonto;
+
+			// Posiciona o Ponteiro do Arquivo no seu fim para gravacao
+
+			long deslocamentoFimDoArquivo = arquivoTXT.length();
+			arquivoTXT.seek(deslocamentoFimDoArquivo); 
+
+			
+			// Grava o Registro da Pontuacao do Usuario
+
+			arquivoTXT.write(size_registro);
+			arquivoTXT.write(sizeNomeUsuario);
+			arquivoTXT.write(sizeNomeTipoPonto);
+			arquivoTXT.write(p.getPontos());
+			arquivoTXT.writeUTF(p.getUsuario());
+			arquivoTXT.writeUTF(p.getTipoPonto()); 
+
+			// Mostra nova posiçado de fim do arquivo 
+			System.out.println("Size do Arquivo: " + arquivoTXT.length()); 
+			
+			// readChar() : 
+			arquivoTXT.seek(0); 
+			System.out.println("Use of read() method : " + arquivoTXT.read()); 
+
+	//		System.out.println("Use of readChar() : " + arquivoTXT.readChar()); 
+
+			// Create array upto arquivoTXT.length 
+	//		byte[] conteudoArquivo = new byte[(int) arquivoTXT.length()]; 
+
+			// Leitura do Conteudo total do Arquivo ()  
+	//		arquivoTXT.seek(0); 
+	//		arquivoTXT.readFully(conteudoArquivo); 
+	//		String str1 = new String(conteudoArquivo); 
+	//		System.out.println("Use of readFully() : " + str1); 
+
+		} 
+		catch (IOException ex) 
+		{ 
+			System.out.println("Problema em I/o no Arquivo TXT"); 
+			ex.printStackTrace(); 
+			throw new Exception ("Problema em I/o no Arquivo TXT");
+		} 
+		
+    }
+
+	private void deletarArquivoTextoDePontuacao() {
+
+		
+	}
+
+
+	
+	
+	private void exibeDadosPontuacao (PontuacaoUsuarios p) {
+//		exibe (	"\n Registro Adicionado -> " + p.getUsuario()  + ", " + p.getTipoPonto() +  ", " + p.getPontos());
+//		exibe ("tipos de pontos = " + _diferentesTiposDePontos);
+//		System.out.println("Lista de Usuarios= " +  _usuariosCadastrados );
+	}
+	private void exibe (String msg) {
+//		System.out.println(msg);
+	}
+
+	private void exibeUsuariosETiposDePontosCadastrados (HashMap<String,String> h) {		
+//		System.out.println ("\n (ST) LISTA DE USUARIOS E PONTOS CADASTRADOS: ");
+//		for (String i : h.keySet()) {
+//		  System.out.print("  key: " + i + " value: " + h.get(i));
+//		}
+	}
+	private void exibeUsuariosCadastrados (HashSet<String> u) {		
+//		System.out.println ("\n (ST) LISTA DE USUARIOS CADASTRADOS:");
+//		for (String s : u) {
+//			  System.out.print(" -> " + s);
+//		}
+	}
+	private void exibeTiposPontosCadastrados (HashSet<String>  p) {		
+//		System.out.println ("\n (ST) LISTA DE DIFERENTES TIPOS DE PONTOS CADASTRADOS: ");
+//		for (String s : p) {
+//			  System.out.print(" -> " + s);
+//		}
+	}
+	private void exibePontuacao (LinkedList<PontuacaoUsuarios> p) {		
+//		System.out.println ("\n (ST) LISTA TOTAL USUARIOS COM PONTUACAO: ");
+//		for (int i=0; i < p.size(); i++) {			
+//			  System.out.print("\n(" + i + ") " + p.get(i).getUsuario() + ", " + p.get(i).getTipoPonto() + ", " + p.get(i).getPontos());
+//		}
+	}
+	private void exibeDadosUsuarios (PontuacaoUsuarios p) {		
+//	  System.out.print("(ST) DADOS REG USER " + p.getUsuario() + ", " + p.getTipoPonto() + ", " + p.getPontos());
+	}
+
+}
+

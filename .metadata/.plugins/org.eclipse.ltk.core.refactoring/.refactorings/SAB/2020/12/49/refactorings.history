@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;pSABbyCRC_UnitTestingSuite.Livro&apos; to &apos;Usuarios&apos;&#x0D;&#x0A;- Original project: &apos;SAB&apos;&#x0D;&#x0A;- Original element: &apos;pSABbyCRC_UnitTestingSuite.Livro&apos;&#x0D;&#x0A;- Renamed element: &apos;pSABbyCRC_UnitTestingSuite.Usuarios&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;Livro&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;pSABbyCRC_UnitTestingSuite{Livro.java[Livro" matchStrategy="1" name="Usuarios" qualified="false" references="true" similarDeclarations="false" stamp="1607111121591" textual="false" version="1.0"/>
+</session>

@@ -1,0 +1,14 @@
+1607108572204	Rename type 'PontosUsuarios'
+1607108621278	Rename type 'Usuario'
+1607113826889	Delete element
+1607169638272	Move compilation unit
+1607169643135	Move compilation unit
+1607180339455	Delete element
+1607181526509	Rename field '_tiposDePontos'
+1607181580705	Rename field '_UsuariosETiposPontos'
+1607183710301	Rename field '_UsuariosCadastrados'
+1607185870054	Inline local variable 'usuario1'
+1607185882951	Inline local variable 'usuario1'
+1607185891292	Inline local variable 'usuario1'
+1607185899714	Inline local variable 'usuario1'
+1607185936423	Inline local variable 'usuario1'

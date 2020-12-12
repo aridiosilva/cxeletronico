@@ -1,0 +1,174 @@
+
+package courseraita;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+public class Placar {
+
+	private  IArmazenamento _armazenamento; 
+
+	public Placar (IArmazenamento a) {		
+		this._armazenamento = a;
+	}
+	
+	public void registrarPontosDoUsuario(PontuacaoUsuarios u) {		
+		_armazenamento.armazenarPontuacaoDeUmUsuario(u);
+	}
+	
+	public HashMap<String,String> retornarPontosDoUsuario (String usuario) throws Exception {
+		
+		LinkedList<PontuacaoUsuarios> _pu = _armazenamento.retornarUsuariosComAlgumTipodePonto();
+		
+//		exibePontuacao(_pu);
+		
+		HashMap<String,String>  _novaLista = new HashMap<String,String>();
+		
+		for (int i = 0; i < _pu.size(); i++) {	
+		
+			if (_pu.get(i).getPontos() != 0   && 
+				_pu.get(i).getUsuario().contains(usuario))  { 		
+			
+				if ( _novaLista.containsKey( _pu.get(i).getTipoPonto() )) {
+				
+					int np = _pu.get(i).getPontos() + Integer.parseInt(_novaLista.get(_pu.get(i).getTipoPonto()));
+					
+					_novaLista.put(	_pu.get(i).getTipoPonto(),Integer.toString(np));
+				
+				} else {
+				     _novaLista.put(_pu.get(i).getTipoPonto(),_pu.get(i).getPontosEmString());
+				}
+			}
+		}
+		if (_novaLista.isEmpty()) {
+			throw new Exception ("Usuario [" + usuario + "] Sem Pontuacao - Nada a Fazer !!!");
+		}
+		exibePontuacoesDeUmUsuario(_novaLista);
+		return _novaLista;  	
+	}
+	
+	public List<RankingPontos> retornarRankingUsuariosDeUmTipoDePonto (String tipoPonto) throws Exception {	
+		
+		ArrayList<RankingPontos> _ranking = getRankingNaoClassificado (tipoPonto);
+		
+		exibeRankingPontos(_ranking);
+		
+		Comparator<RankingPontos> compareByPoints = 
+				Comparator.comparing(RankingPontos::getPontos).reversed().
+				thenComparing(RankingPontos::getUsuario);
+		
+		List<RankingPontos> _sortedRanking = 
+				_ranking.stream().sorted(compareByPoints).collect(Collectors.toList());
+		
+		return _sortedRanking;
+	}
+	
+	private ArrayList<RankingPontos> getRankingNaoClassificado(String tipoPonto) throws Exception {
+		
+		HashMap<String, String> _mapaTemporario = sumarizaPontosUsuariosPorTipo(tipoPonto);
+		LinkedList<PontuacaoUsuarios> _pontuacaoUsuarios = new LinkedList<PontuacaoUsuarios>();
+		for (Entry<String, String> map : _mapaTemporario.entrySet()) { 
+			_pontuacaoUsuarios.add(	new PontuacaoUsuarios ( 
+					map.getKey(),  tipoPonto, Integer.parseInt( map.getValue() )));
+					System.out.println(" ** tp= " + map.getKey() + " p= " + Integer.parseInt( map.getValue()));
+		}
+		ArrayList<RankingPontos> _list = converteLIstaPontosParaRankingPontos(tipoPonto, _pontuacaoUsuarios);		
+		exibeRankingPontos(_list);
+		return _list;
+	}
+
+	private ArrayList<RankingPontos> converteLIstaPontosParaRankingPontos(String tipoPonto,
+			LinkedList<PontuacaoUsuarios> _pontuacaoUsuarios) {
+		ArrayList<RankingPontos> _list = new ArrayList<>();
+		for (int i=0; i < _pontuacaoUsuarios.size(); i++ ) {
+			
+			String name       = (String) _pontuacaoUsuarios.get(i).getUsuario();
+			String typePoints = (String) _pontuacaoUsuarios.get(i).getTipoPonto();
+			int points        = (int)  _pontuacaoUsuarios.get(i).getPontos();
+			
+			System.out.println ("\nLIDO = tipo de ponto = " + typePoints + " " + name + " " + points );
+			
+			if (typePoints.contains(tipoPonto)) 	
+				_list.add( new RankingPontos(name, points));
+		}
+		return _list;
+	}
+
+	private HashMap<String, String> sumarizaPontosUsuariosPorTipo(String tipoPonto) throws Exception {
+		
+		LinkedList<PontuacaoUsuarios> _ptsSumarizar = _armazenamento.retornarUsuariosComAlgumTipodePonto();
+		HashMap<String,String>  _mapaTemporario = new HashMap<String,String>();
+		for ( int i =0;  i < _ptsSumarizar.size(); i++) {
+
+			if (_ptsSumarizar.get(i).getPontos() != 0 && 
+				_ptsSumarizar.get(i).getTipoPonto().contains(tipoPonto) ) {
+				
+				if ( _mapaTemporario.containsKey( _ptsSumarizar.get(i).getUsuario() )) {
+
+					int np = _ptsSumarizar.get(i).getPontos() + 
+							 Integer.parseInt(_mapaTemporario.get(_ptsSumarizar.get(i).getTipoPonto()));
+					
+					_mapaTemporario.put(_ptsSumarizar.get(i).getTipoPonto(), 
+							            Integer.toString(np));
+
+				} else {
+					_mapaTemporario.put(_ptsSumarizar.get(i).getTipoPonto(),
+							            _ptsSumarizar.get(i).getPontosEmString());
+				}
+			}
+		}
+		if (_mapaTemporario.isEmpty())
+			throw new Exception (" (PLACAR) Error: Nenhum Ponto Registrado ainda - Nenhum Ranking!!!");
+		return _mapaTemporario;
+	}
+	
+	private void exibeListaDePontuacao (PontuacaoUsuarios pu) {	
+		
+		System.out.print("(1) " + pu.getUsuario() + ", " + pu.getTipoPonto() + ", " + pu.getPontos() + "\n");
+	}
+	
+	private void exibePontuacoesDeUmUsuario (HashMap<String,String> h) {	
+		
+		System.out.println ("\n(2)(PLACAR) LISTA de PONTOS de Um Usuário ");
+		
+		for (String i : h.keySet()) {
+			System.out.print("\n  key: " + i + " value: " + h.get(i));
+		}
+	}
+	
+	private void exibePontuacao (LinkedList<PontuacaoUsuarios> pu) {		
+		
+		System.out.println ("\n\n(3) (PLACAR) Lista de Usuarios Com Pontuação: ");
+		
+		for (int i=0; i < pu.size(); i++) {			
+			exibeListaDePontuacao (new PontuacaoUsuarios(pu.get(i).getUsuario(),pu.get(i).getTipoPonto(),pu.get(i).getPontos()));
+		}
+	}
+	
+	private void exibeRankingPontos (ArrayList<RankingPontos> r) {		
+		
+		System.out.println ("\n\n EXIBINDO RANKING NAO ORDENADO ");
+		
+		for (int i=0; i < r.size(); i++) {			
+			System.out.println (" tp= " + r.get(i).getUsuario() + " p= " + r.get(i).getPontos());
+		}
+	}
+
+	
+//	private void exibeRankingPontos (List<RankingPontos> r) {		
+//		
+//		System.out.println ("\n\n EXIBINDO RANKING NAO ORDENADO ");
+//		
+//		for (int i=0; i < r.size(); i++) {			
+//			System.out.println (" tp= " + r.get(i).getUsuario() + " p= " + r.get(i).getPontos());
+//		}
+//	}
+}
+
+

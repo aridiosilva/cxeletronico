@@ -1,0 +1,6 @@
+1606673007321	Inline local variable 'debito'
+1606678513774	Extract method 'extracted'
+1606763685251	Extract method 'isNotVerao'
+1606766374851	Extract method 'calculaCustoTarifaInverno'
+1606766455682	Extract method 'calculaCustoTarifaVerao'
+1606769071131	Rename method 'isInverno'

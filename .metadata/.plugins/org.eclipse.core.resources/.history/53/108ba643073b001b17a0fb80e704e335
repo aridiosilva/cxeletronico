@@ -1,0 +1,39 @@
+package courseraita;
+
+import java.io.IOException;
+
+public class DriveArquivoTXT {
+	
+	
+	
+	
+	
+	private void fazLeituraArquivoTextoDePontuacao() throws IOException {
+
+		String bufferArquivo;
+		try {
+			
+			RandomAccessFile raf = new RandomAccessFile(file, mode);
+			
+		}
+        catch (IOException ioe) { 
+            throw new Exception ("Problema na Leitura do Arquivo TEXTO");
+        } 
+
+		
+	}
+
+	private void extendeArquivotextoPontuacao(PontuacaoUsuarios p) {
+         
+		
+		
+		
+	}
+
+	private void deletarArquivoTextoDePontuacao() {
+
+		
+	}
+
+
+}
